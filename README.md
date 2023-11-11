@@ -73,5 +73,5 @@ iLoveCProgrammingLangrage
 
 规则就这么多。现在回头看本文开篇所写的格式文本，你能猜出这匹配的是什么吗？
 
-![1](https://www.ideasky.top/?explorer/share/file&hash=d9bc3LcP8W4eNgFLWORbyxnqlWI7xN_rKvV60WLBbjMi9czB53Sb7K7OG4H7dpPofTdZ&name=/fexpexample1.jpg)
+[![fexpexample1.jpg](https://i.postimg.cc/T2kq7THt/fexpexample1.jpg)](https://postimg.cc/bdttdfPn)
 
