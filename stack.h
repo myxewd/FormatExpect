@@ -2,7 +2,7 @@
 #ifndef _stack_h
 #define _stack_h
 
-#define MAX_SIZE 100
+#define MAX_SIZE 200
 struct Stack {
     int arr[MAX_SIZE];
     int top;

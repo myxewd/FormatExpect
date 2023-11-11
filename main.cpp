@@ -6,14 +6,30 @@
 #include "stack.h"
 #define gets(input) fgets(input, sizeof(input), stdin)
 #define resetIntcache intcache[0] = '0', intcache[1] = '\0';
-
+/*
+int malocc = 0;
+void* mallocEX(size_t size) {
+	malocc++;
+	void* ret = malloc(size);
+	//printf("a=%d\n", (int)ret);
+	return ret;
+}
+void freeEX(void* ptr) {
+	malocc--;
+	//printf("f=%d\n", (int)ptr);
+	free(ptr);
+}
+#define malloc(size) mallocEX(size)
+#define free(size) freeEX(size)
+*/
 int main(void) {
 	char fexpr[1000],teststr[1000];
 	gets(fexpr);
 	gets(teststr);
-	ENODE* mytree = build_tree(fexpr);
+	ENODE* mytree = fexp_build_tree(fexpr);
 	__dumpTree(mytree);
 	printf("%d\n", if_match(teststr, mytree));
+	fexp_free_tree(mytree);
 	return 0;
 
 }
@@ -49,13 +65,13 @@ int if_match(char* ystr, ENODE* ytree) {
 	return 0;
 }
 
-ENODE* build_tree(char* fexpr) {
+ENODE* fexp_build_tree(char* fexpr) {
 	ENODE* ret = (ENODE*)malloc(sizeof(ENODE));
 	ENODE* cur = ret,*lst=NULL;
 	Stack loopStruct;
 	LIMIT alim;
 	char intcache[5] = { '0','\0' }, gint[2] = {0x00,'\0' };
-	int status = 0, i,limlist=(int)malloc(sizeof(LIMIT)+sizeof(int)),curlim=limlist,flag=0,loopHead=0,temp;
+	int status = 0, i,limlist=0,curlim=limlist,flag=0,loopHead=0,temp;
 	initialize(&loopStruct);
 	memset(cur->next, 0, sizeof(int) * nestDepth);
 	for (i = 0; fexpr[i] != 0x00; i++) {
@@ -108,13 +124,62 @@ ENODE* build_tree(char* fexpr) {
 	}
 	return ret;
 }
+
+void fexp_free_tree(ENODE* fexpr) {
+	int node_list[nestDepth],i,j,freerec,curlist,curlim,temp,flag=0;
+	memcpy(node_list, fexpr->next, sizeof(int) * nestDepth);
+	Stack emu_iter;
+	ENODE* curnode;
+	freerec = (int)malloc(2 * sizeof(int)), * (int*)freerec = 0, * (int*)(freerec + sizeof(int)) = 0, curlist = freerec;
+	initialize(&emu_iter);
+	push(&emu_iter, (int)fexpr);
+	for (i = 0; node_list[i] != 0; ) {
+		push(&emu_iter, node_list[i]);
+		memcpy(node_list, ((ENODE*)(node_list[i]))->next, sizeof(int) * nestDepth);
+	}
+	while ( peek(&emu_iter) != -1) {
+		for (j = 0; (int)(curnode = (ENODE*)((((ENODE*)peek(&emu_iter))->next)[j])) != 0; j++) {
+			freeroot:
+			for(curlist = freerec;*(int*)curlist!=0;curlist=*(int*)(curlist+sizeof(int)))
+				if(*(int*)curlist==(int)curnode)goto freed;
+			if (curnode == (ENODE*)peek(&emu_iter))
+				goto freed;
+			curlim = curnode->echar;
+			while (curlim != 0) {
+				temp = curlim;
+				curlim = *(int*)(curlim + sizeof(LIMIT));
+				free((void*)temp);
+			}
+			free((void*)curnode);
+			for (curlist = freerec; *(int*)curlist != 0; curlist = *(int*)(curlist + sizeof(int)));
+			*(int*)curlist = (int)curnode;
+			*(int*)(curlist + sizeof(int)) = (int)malloc(2 * sizeof(int));
+			*(int*)(*(int*)(curlist + sizeof(int))) = 0, * (int*)(*(int*)(curlist + sizeof(int)) + sizeof(int)) = 0;
+			curnode = NULL;
+			freed:
+			if (flag) {
+				while (freerec != 0) {
+					temp = *(int*)(freerec + sizeof(int));
+					free((void*)freerec);
+					freerec = temp;
+				}
+				return;
+			}
+		}
+		pop(&emu_iter);
+	}
+	flag = 1;
+	curnode = fexpr;
+	goto freeroot;
+}
+
+
 int enode_add_option(ENODE* ynode, int yoption) {
 	int i;
 	for (i = 0; ynode->next[i] != 0; i++);
 	ynode->next[i] = yoption;
 	return i;
 }
-
 int if_not_leaf(ENODE* ynode) {
 	int i, j,ret=0;
 	for (i = 0; ynode->next[i] != 0; i++) {

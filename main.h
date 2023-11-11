@@ -12,8 +12,9 @@ struct ENODE {
 	int next[nestDepth];
 };
 int if_match(char* ystr, ENODE* ytree);
-ENODE* build_tree(char* fexpr);
+ENODE* fexp_build_tree(char* fexpr);
 int enode_add_option(ENODE* ynode, int yoption);
 int if_not_leaf(ENODE* ynode);
+void fexp_free_tree(ENODE* fexpr);
 void __dumpTree(ENODE* ytree);
 #endif
