@@ -30,12 +30,12 @@ int main(void) {
 	gets(teststr);
 	ENODE* mytree = fexp_build_tree(fexpr);
 	__dumpTree(mytree);
-	printf("%d\n", if_match(teststr, mytree));
+	printf("%d\n", fexp_match_text(teststr, mytree));
 	fexp_free_tree(mytree);
 	return 0;
 }
 
-int if_match(char* ystr, ENODE* ytree) {
+int fexp_match_text(char* ystr, ENODE* ytree) {
 	LIMIT alim;
 	int i,j, flag, options[nestDepth] = { (int)ytree ,0},nextlim;
 	for (i = 0; ystr[i] != 0x00; i++) {
