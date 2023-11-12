@@ -6,6 +6,7 @@
 #include "stack.h"
 #define gets(input) fgets(input, sizeof(input), stdin)
 #define resetIntcache intcache[0] = '0', intcache[1] = '\0';
+
 /*
 int malocc = 0;
 void* mallocEX(size_t size) {
@@ -22,6 +23,7 @@ void freeEX(void* ptr) {
 #define malloc(size) mallocEX(size)
 #define free(size) freeEX(size)
 */
+
 int main(void) {
 	char fexpr[1000],teststr[1000];
 	gets(fexpr);
@@ -31,7 +33,6 @@ int main(void) {
 	printf("%d\n", if_match(teststr, mytree));
 	fexp_free_tree(mytree);
 	return 0;
-
 }
 
 int if_match(char* ystr, ENODE* ytree) {
@@ -128,21 +129,20 @@ ENODE* fexp_build_tree(char* fexpr) {
 void fexp_free_tree(ENODE* fexpr) {
 	int node_list[nestDepth],i,j,freerec,curlist,curlim,temp,flag=0;
 	memcpy(node_list, fexpr->next, sizeof(int) * nestDepth);
-	Stack emu_iter;
+	int emu_iter=cs_create();
 	ENODE* curnode;
 	freerec = (int)malloc(2 * sizeof(int)), * (int*)freerec = 0, * (int*)(freerec + sizeof(int)) = 0, curlist = freerec;
-	initialize(&emu_iter);
-	push(&emu_iter, (int)fexpr);
+	cs_push(&emu_iter, (int)fexpr);
 	for (i = 0; node_list[i] != 0; ) {
-		push(&emu_iter, node_list[i]);
+		cs_push(&emu_iter, node_list[i]);
 		memcpy(node_list, ((ENODE*)(node_list[i]))->next, sizeof(int) * nestDepth);
 	}
-	while ( peek(&emu_iter) != -1) {
-		for (j = 0; (int)(curnode = (ENODE*)((((ENODE*)peek(&emu_iter))->next)[j])) != 0; j++) {
+	while ( cs_peek(emu_iter) != -1) {
+		for (j = 0; (int)(curnode = (ENODE*)((((ENODE*)cs_peek(emu_iter))->next)[j])) != 0; j++) {
 			freeroot:
 			for(curlist = freerec;*(int*)curlist!=0;curlist=*(int*)(curlist+sizeof(int)))
 				if(*(int*)curlist==(int)curnode)goto freed;
-			if (curnode == (ENODE*)peek(&emu_iter))
+			if (curnode == (ENODE*)cs_peek(emu_iter))
 				goto freed;
 			curlim = curnode->echar;
 			while (curlim != 0) {
@@ -163,10 +163,11 @@ void fexp_free_tree(ENODE* fexpr) {
 					free((void*)freerec);
 					freerec = temp;
 				}
+				cs_free(emu_iter);
 				return;
 			}
 		}
-		pop(&emu_iter);
+		cs_pop(&emu_iter);
 	}
 	flag = 1;
 	curnode = fexpr;

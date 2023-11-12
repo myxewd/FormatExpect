@@ -2,6 +2,7 @@
 #ifndef main_h
 #define main_h
 #define nestDepth 16
+
 struct LIMIT {
 	int min;
 	int max;
