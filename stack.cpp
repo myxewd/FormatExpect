@@ -65,7 +65,7 @@ void cs_push(int* stack, int data) {
 }
 
 int cs_pop(int* stack) {
-    if (*stack == 0)
+    if (((Node*)*stack)->next == NULL)
         return -1;
     Node* topNode = (Node*)*stack;
     int ret = topNode->data;
@@ -81,12 +81,15 @@ int cs_peek(int stack) {
     return topNode->data ? topNode->data: -1;
 }
 
-void cs_free(int stack) {
-    Node* cur = (Node*)stack;
+void cs_free(int* stack) {
+    if (*stack == 0)
+        return;
+    Node* cur = (Node*)*stack;
     Node* temp;
     while (cur != NULL) {
         temp = cur->next;
         free(cur);
         cur = temp;
     }
+    *stack = 0;
 }

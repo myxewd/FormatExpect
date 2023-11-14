@@ -17,7 +17,7 @@ int cs_create(void);
 void cs_push(int* stack, int data);
 int cs_pop(int* stack);
 int cs_peek(int stack);
-void cs_free(int stack);
+void cs_free(int* stack);
 
 
 #endif
