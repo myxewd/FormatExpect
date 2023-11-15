@@ -55,8 +55,8 @@ int fexp_match_text(char* ystr, ENODE* ytree) {
 				continue;
 			do {
 				alim = *(LIMIT*)(nextlim);
-				printf("lim(min=%d,max=%d),%d,%c\n", alim.min, alim.max, ystr[i], ystr[i]);
-				if (ystr[i] >= alim.min && ystr[i] <= alim.max) {
+				//printf("lim(min=%d,max=%d),%d,%c\n", alim.min, alim.max, ystr[i], ystr[i]);
+				if ((unsigned char)ystr[i] >= alim.min && (unsigned char)ystr[i] <= alim.max) {
 					flag = 1;
 					break;
 				}
