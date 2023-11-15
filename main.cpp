@@ -34,6 +34,13 @@ int main(void) {
 	//printf("malocc=%d\n", malocc);
 	return 0;
 }
+/* 
+* ret code
+* 0 : match success
+* -1 : match fail
+* 1 : good string but too long
+* 2 : good string but too short
+*/
 
 int fexp_match_text(char* ystr, ENODE* ytree) {
 	LIMIT alim;
@@ -48,15 +55,15 @@ int fexp_match_text(char* ystr, ENODE* ytree) {
 				continue;
 			do {
 				alim = *(LIMIT*)(nextlim);
-				//printf("lim(min=%d,max=%d),%d\n", alim.min, alim.max,ystr[i]);
+				printf("lim(min=%d,max=%d),%d,%c\n", alim.min, alim.max, ystr[i], ystr[i]);
 				if (ystr[i] >= alim.min && ystr[i] <= alim.max) {
 					flag = 1;
 					break;
 				}
 			} while ((nextlim = *(int*)(nextlim + sizeof(LIMIT))) != 0);
 			if (flag) {
-				if (if_not_leaf(cur) == 0)
-					return 0;
+				if (if_not_leaf(cur) == 0 && ystr[i+1]!=0x00)
+					return 1;
 				memcpy(options, cur->next, sizeof(int) * nestDepth);
 				break;
 			}
@@ -65,7 +72,7 @@ int fexp_match_text(char* ystr, ENODE* ytree) {
 			return -1;
 	}
 	if (if_not_leaf(cur) > 0)
-		return -1;
+		return 2;
 	else
 		return 0;
 }
@@ -194,6 +201,14 @@ int enode_add_option(ENODE* ynode, int yoption) {
 	ynode->next[i] = yoption;
 	return i;
 }
+
+/*
+* ret code
+* N* : not leaf with available another node
+* 0 : common leaf node
+* -1 : leaf node with loop struct
+*/
+
 int if_not_leaf(ENODE* ynode) {
 	int i, j, ret = 0, flag = 0;
 	for (i = 0; ynode->next[i] != 0; i++) {
