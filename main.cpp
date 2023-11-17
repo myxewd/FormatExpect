@@ -29,7 +29,7 @@ int main(void) {
 	gets(teststr);
 	ENODE* mytree = fexp_build_tree(fexpr);
 	__dumpTree(mytree);
-	printf("%d\n", fexp_match_text(teststr, mytree));
+	printf("%d\n", fexp_match_text(teststr,0 ,mytree));
 	fexp_free_tree(mytree);
 	//printf("malocc=%d\n", malocc);
 	return 0;
@@ -42,11 +42,19 @@ int main(void) {
 * 2 : good string but too short
 */
 
-int fexp_match_text(char* ystr, ENODE* ytree) {
+int fexp_match_text(char* ystr,int length, ENODE* ytree) {
 	LIMIT alim;
 	ENODE* cur = NULL;
 	int i, j, flag, options[nestDepth] = { (int)ytree ,0 }, nextlim;
-	for (i = 0; ystr[i] != 0x00; i++) {
+	for (i = 0; ; i++) {
+		if (length > 0) {
+			if (!(i < length))
+				break;
+		}
+		else {
+			if (ystr[i] == 0x00)
+				break;
+		}
 		flag = 0;
 		for (j = 0; options[j] != 0; j++) {
 			cur = (ENODE*)(options[j]);

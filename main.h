@@ -12,7 +12,7 @@ struct ENODE {
 	int echar;
 	int next[nestDepth];
 };
-int fexp_match_text(char* ystr, ENODE* ytree);
+int fexp_match_text(char* ystr, int length, ENODE* ytree);
 ENODE* fexp_build_tree(char* fexpr);
 int enode_add_option(ENODE* ynode, int yoption);
 int if_not_leaf(ENODE* ynode);
